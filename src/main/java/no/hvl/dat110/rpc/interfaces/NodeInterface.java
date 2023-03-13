@@ -15,7 +15,6 @@ import java.util.Set;
 
 import no.hvl.dat110.middleware.Message;
 
-
 public interface NodeInterface extends Remote {
     public BigInteger getNodeID() throws RemoteException;
 
@@ -53,10 +52,14 @@ public interface NodeInterface extends Remote {
 
     public void broadcastUpdatetoPeers(byte[] bytesOfFile) throws RemoteException;
 
-    /** Remote-Write Protocol */
+    /**
+     * Remote-Write Protocol
+     */
     public void requestRemoteWriteOperation(byte[] updates, Set<Message> activenodes) throws RemoteException;
 
-    /** Concerns mutual exclusion algorithm*/
+    /**
+     * Concerns mutual exclusion algorithm
+     */
 
     public boolean requestMutexWriteOperation(Message message, byte[] updates, Set<Message> messages) throws RemoteException;
 
