@@ -1,7 +1,7 @@
 package no.hvl.dat110.unit.tests;
 
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigInteger;
 import java.rmi.RemoteException;
@@ -36,6 +36,6 @@ class TestFileReplicas {
         Collections.sort(file1expected);
         Collections.sort(file1actual_list);
 
-        assertTrue(file1expected.equals(file1actual_list));
+        assertEquals(file1expected, file1actual_list);
     }
 }

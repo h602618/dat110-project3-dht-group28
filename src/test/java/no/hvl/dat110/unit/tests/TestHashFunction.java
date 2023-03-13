@@ -1,20 +1,13 @@
 package no.hvl.dat110.unit.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import no.hvl.dat110.util.Hash;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import no.hvl.dat110.util.Hash;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TestHashFunction {
-    @BeforeEach
-    void setUp() throws Exception {
-    }
-
     /**
      * Test method for {@link no.hvl.dat110.util.Hash#hashOf(java.lang.String)}.
      */
@@ -48,6 +41,6 @@ class TestHashFunction {
     void testAddressSize() {
         BigInteger address_space = new BigInteger("340282366920938463463374607431768211456");
 
-        assertTrue(Hash.addressSize().compareTo(address_space) == 0);
+        assertEquals(0, Hash.addressSize().compareTo(address_space));
     }
 }
