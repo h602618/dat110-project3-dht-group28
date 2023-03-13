@@ -20,217 +20,188 @@ import no.hvl.dat110.util.Hash;
  */
 
 public class Node extends UnicastRemoteObject implements NodeInterface {
-	
-	private BigInteger nodeID;							// BigInteger value of hash of IP address/name of the Node
-	protected String nodename;							// IP address/name of the node 
-	private int port;									// port on which the registry for this node is running
-	private NodeInterface successor;
-	private NodeInterface predecessor;
-	private Set<BigInteger> keys;
-	
-	private List<NodeInterface> fingerTable;
-	private Map<BigInteger, Message> filesMetadata;		//
-	
-	protected Set<Message> activenodesforfile;			// this list stores all active peers holding copies of a file 
-	
-	private UpdateOperations updater;					// this class contains methods for handling file updates
-	private ChordLookup lookup;							// this class contains methods for looking up keys in a chord ring
-		
-	private Message message;
-	
-	/** Mutual Exclusion variable */
-	private MutualExclusion mutex;
-	
-	private static final long serialVersionUID = 1L;
-	
-	public Node(String nodename, int port) throws RemoteException {
-		super();
-		this.port = port;
-		this.nodename = nodename;									// use a different name as "IP" for single machine simulation
-		nodeID = Hash.hashOf(nodename);								// use the MD5  from Hash class
-		
-		keys = new HashSet<BigInteger>();
-		fingerTable = new ArrayList<>();
-		filesMetadata = new HashMap<BigInteger, Message>();
-		updater = new UpdateOperations(this, filesMetadata);
-		lookup = new ChordLookup(this);
+    private BigInteger nodeID;                            // BigInteger value of hash of IP address/name of the Node
+    protected String nodename;                            // IP address/name of the node
+    private int port;                                    // port on which the registry for this node is running
+    private NodeInterface successor;
+    private NodeInterface predecessor;
+    private Set<BigInteger> keys;
+    private List<NodeInterface> fingerTable;
+    private Map<BigInteger, Message> filesMetadata;        //
+    protected Set<Message> activenodesforfile;            // this list stores all active peers holding copies of a file
+    private UpdateOperations updater;                    // this class contains methods for handling file updates
+    private ChordLookup lookup;                            // this class contains methods for looking up keys in a chord ring
+    private Message message;
 
-		message = new Message(nodeID, nodename, port);				// default message
-		mutex = new MutualExclusion(this);
-	}
-	
-	@Override
-	public BigInteger getNodeID() throws RemoteException {
-		
-		return nodeID;
-	}
+    /**
+     * Mutual Exclusion variable
+     */
+    private MutualExclusion mutex;
+    private static final long serialVersionUID = 1L;
 
-	//@Override
-	public String getNodeName() {
-		
-		return nodename;
-	}
-	
-	@Override
-	public int getPort() throws RemoteException {
-		
-		return port;
-	}
+    public Node(String nodename, int port) throws RemoteException {
+        super();
+        this.port = port;
+        this.nodename = nodename;                                    // use a different name as "IP" for single machine simulation
+        nodeID = Hash.hashOf(nodename);                                // use the MD5  from Hash class
 
-	@Override
-	public void setSuccessor(NodeInterface succ) throws RemoteException {
-		
-		successor = succ;
-	}
+        keys = new HashSet<BigInteger>();
+        fingerTable = new ArrayList<>();
+        filesMetadata = new HashMap<BigInteger, Message>();
+        updater = new UpdateOperations(this, filesMetadata);
+        lookup = new ChordLookup(this);
 
-	//@Override
-	public void setPredecessor(NodeInterface pred) {
-		
-		predecessor = pred;
-	}
+        message = new Message(nodeID, nodename, port);                // default message
+        mutex = new MutualExclusion(this);
+    }
 
-	@Override
-	public NodeInterface getPredecessor() throws RemoteException {
-		
-		return predecessor;
-	}
+    @Override
+    public BigInteger getNodeID() throws RemoteException {
+        return nodeID;
+    }
 
-	@Override
-	public NodeInterface getSuccessor() throws RemoteException {
-		
-		return successor;
-	}
+    //@Override
+    public String getNodeName() {
+        return nodename;
+    }
 
-	@Override
-	public Set<BigInteger> getNodeKeys() throws RemoteException {
-		
-		return keys;
-	}
+    @Override
+    public int getPort() throws RemoteException {
+        return port;
+    }
 
-	@Override
-	public void addKey(BigInteger id) throws RemoteException {
-		
-		keys.add(id);
-	}
-	
-	@Override
-	public void removeKey(BigInteger id) throws RemoteException {
-		
-		keys.remove(id);
-	}
-	
-	@Override
-	public List<NodeInterface> getFingerTable() {
-		return fingerTable;
-	}
+    @Override
+    public void setSuccessor(NodeInterface succ) throws RemoteException {
+        successor = succ;
+    }
 
-	@Override
-	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
-		// ask this node to find the successor of key
-		return lookup.findSuccessor(key);
-	}
-	
-	//@Override
-	public void copyKeysFromSuccessor(NodeInterface succ) {
-		
-		lookup.copyKeysFromSuccessor(succ);
-	}
+    //@Override
+    public void setPredecessor(NodeInterface pred) {
+        predecessor = pred;
+    }
 
-	@Override
-	public void notify(NodeInterface pred_new) throws RemoteException {
-		
-		lookup.notify(pred_new);		
-	}
+    @Override
+    public NodeInterface getPredecessor() throws RemoteException {
+        return predecessor;
+    }
 
-	@Override
-	public Message getFilesMetadata(BigInteger fileID) throws RemoteException {
+    @Override
+    public NodeInterface getSuccessor() throws RemoteException {
+        return successor;
+    }
 
-		return filesMetadata.get(fileID);
-	}
+    @Override
+    public Set<BigInteger> getNodeKeys() throws RemoteException {
+        return keys;
+    }
 
-	@Override
-	public Map<BigInteger, Message> getFilesMetadata() throws RemoteException {
-		
-		return filesMetadata;
-	}
+    @Override
+    public void addKey(BigInteger id) throws RemoteException {
+        keys.add(id);
+    }
 
-	@Override
-	public void updateFileContent(List<Message> updates) throws RemoteException {
-		updater.updateFileContent(updates);
-		
-	}
+    @Override
+    public void removeKey(BigInteger id) throws RemoteException {
+        keys.remove(id);
+    }
 
-	@Override
-	public synchronized void broadcastUpdatetoPeers(byte[] bytesOfFile) throws RemoteException {
-		updater.broadcastUpdatetoPeers(activenodesforfile, bytesOfFile);
-		
-	}
+    @Override
+    public List<NodeInterface> getFingerTable() {
+        return fingerTable;
+    }
 
-	@Override
-	public void saveFileContent(String filename, BigInteger fileID, byte[] bytesOfFile, boolean primary) throws RemoteException {
-		updater.saveFileContent(filename, fileID, bytesOfFile, primary);
-		
-	}
-	
-	/** Remote-write */
-	@Override
-	public void requestRemoteWriteOperation(byte[] updates, Set<Message> activenodes) throws RemoteException {
-		this.activenodesforfile = activenodes;
-		broadcastUpdatetoPeers(updates);		
-	}
-	
-	
-	/** Mutex Section */
+    @Override
+    public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
+        // ask this node to find the successor of key
+        return lookup.findSuccessor(key);
+    }
 
-	@Override
-	public boolean requestMutexWriteOperation(Message message, byte[] updates, Set<Message> activepeers)
-			throws RemoteException {
+    //@Override
+    public void copyKeysFromSuccessor(NodeInterface succ) {
+        lookup.copyKeysFromSuccessor(succ);
+    }
 
-		this.message = message;
-		this.activenodesforfile = activepeers;
-		return mutex.doMutexRequest(this.message, updates);
+    @Override
+    public void notify(NodeInterface pred_new) throws RemoteException {
+        lookup.notify(pred_new);
+    }
 
-	}
-	
-	@Override
-	public void acquireLock() throws RemoteException {
-		
-		mutex.acquireLock();
-	}
+    @Override
+    public Message getFilesMetadata(BigInteger fileID) throws RemoteException {
+        return filesMetadata.get(fileID);
+    }
 
-	@Override
-	public void releaseLocks() throws RemoteException {
-		
-		mutex.releaseLocks();
-	}
+    @Override
+    public Map<BigInteger, Message> getFilesMetadata() throws RemoteException {
+        return filesMetadata;
+    }
 
-	@Override
-	public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
-		
-		mutex.onMutexAcknowledgementReceived(message);
-	}
+    @Override
+    public void updateFileContent(List<Message> updates) throws RemoteException {
+        updater.updateFileContent(updates);
+    }
 
-	@Override
-	public void onMutexRequestReceived(Message message) throws RemoteException {
-		
-		mutex.onMutexRequestReceived(message);	
-	}
-	
-	@Override
-	public void multicastReleaseLocks(Set<Message> activenodes) throws RemoteException {
-		
-		mutex.multicastReleaseLocks(activenodes);
-		
-	}
-	
-	/** End Mutex Section */
-	
-	
-	/**
-	 * @return the message
-	 */
-	public Message getMessage() {
-		return message;
-	}
+    @Override
+    public synchronized void broadcastUpdatetoPeers(byte[] bytesOfFile) throws RemoteException {
+        updater.broadcastUpdatetoPeers(activenodesforfile, bytesOfFile);
+    }
 
+    @Override
+    public void saveFileContent(String filename, BigInteger fileID, byte[] bytesOfFile, boolean primary) throws RemoteException {
+        updater.saveFileContent(filename, fileID, bytesOfFile, primary);
+    }
+
+    /**
+     * Remote-write
+     */
+    @Override
+    public void requestRemoteWriteOperation(byte[] updates, Set<Message> activenodes) throws RemoteException {
+        this.activenodesforfile = activenodes;
+        broadcastUpdatetoPeers(updates);
+    }
+
+    /**
+     * Mutex Section
+     */
+    @Override
+    public boolean requestMutexWriteOperation(Message message, byte[] updates, Set<Message> activepeers) throws RemoteException {
+        this.message = message;
+        this.activenodesforfile = activepeers;
+        return mutex.doMutexRequest(this.message, updates);
+    }
+
+    @Override
+    public void acquireLock() throws RemoteException {
+        mutex.acquireLock();
+    }
+
+    @Override
+    public void releaseLocks() throws RemoteException {
+        mutex.releaseLocks();
+    }
+
+    @Override
+    public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
+        mutex.onMutexAcknowledgementReceived(message);
+    }
+
+    @Override
+    public void onMutexRequestReceived(Message message) throws RemoteException {
+        mutex.onMutexRequestReceived(message);
+    }
+
+    @Override
+    public void multicastReleaseLocks(Set<Message> activenodes) throws RemoteException {
+        mutex.multicastReleaseLocks(activenodes);
+    }
+
+    /** End Mutex Section */
+
+
+    /**
+     * @return the message
+     */
+    public Message getMessage() {
+        return message;
+    }
 }

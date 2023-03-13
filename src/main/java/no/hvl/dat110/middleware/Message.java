@@ -5,143 +5,139 @@ import java.math.BigInteger;
 import java.rmi.RemoteException;
 
 public class Message implements Serializable {
-	
+    private static final long serialVersionUID = 1L;
+    private int clock = 0;
+    private BigInteger nodeID;
+    private String nodename;
+    private int port;
+    private boolean acknowledged = false;
+    private String filepath;
+    private byte[] bytesOfFile;                        // we use bytes here to indicate that we can actually divide the file into byte chunks and send them to different servers
+    private BigInteger hashOfFile;
+    private String nameOfFile;
 
-	private static final long serialVersionUID = 1L;
-	private int clock = 0;
-	private BigInteger nodeID;
-	private String nodename;
-	private int port;
-	
-	private boolean acknowledged = false;
-	private String filepath;
-	
-	private byte[] bytesOfFile; 						// we use bytes here to indicate that we can actually divide the file into byte chunks and send them to different servers
-	private BigInteger hashOfFile;
-	private String nameOfFile;
-	
-	/** variable for remote-write protocol*/
-	private boolean primaryServer;
-	
-	
-	public Message() throws RemoteException {
-		super();
-	}
-	
-	public Message(BigInteger nodeID, String nodename, int port) {
-		this.nodeID = nodeID;
-		this.nodename = nodename;
-		this.port = port;
-	}
-	
-	public int getClock() {
-		return clock;
-	}
-	
-	public void setClock(int clock) {
-		this.clock = clock;
-	}
+    /**
+     * variable for remote-write protocol
+     */
+    private boolean primaryServer;
 
-	public BigInteger getNodeID() {
-		return nodeID;
-	}
+    public Message() throws RemoteException {
+        super();
+    }
 
-	public void setNodeID(BigInteger nodeID) {
-		this.nodeID = nodeID;
-	}
+    public Message(BigInteger nodeID, String nodename, int port) {
+        this.nodeID = nodeID;
+        this.nodename = nodename;
+        this.port = port;
+    }
 
-	public boolean isAcknowledged() {
-		return acknowledged;
-	}
+    public int getClock() {
+        return clock;
+    }
 
-	public void setAcknowledged(boolean acknowledged) {
-		this.acknowledged = acknowledged;
-	}
+    public void setClock(int clock) {
+        this.clock = clock;
+    }
 
-	public String getNodeName() {
-		return nodename;
-	}
+    public BigInteger getNodeID() {
+        return nodeID;
+    }
 
-	public void setNodeName(String nodename) {
-		this.nodename = nodename;
-	}
+    public void setNodeID(BigInteger nodeID) {
+        this.nodeID = nodeID;
+    }
 
-	public String getFilepath() {
-		return filepath;
-	}
+    public boolean isAcknowledged() {
+        return acknowledged;
+    }
 
-	public void setFilepath(String filepath) {
-		this.filepath = filepath;
-	}
+    public void setAcknowledged(boolean acknowledged) {
+        this.acknowledged = acknowledged;
+    }
 
-	/**
-	 * @return the bytesOfFile
-	 */
-	public byte[] getBytesOfFile() {
-		return bytesOfFile;
-	}
+    public String getNodeName() {
+        return nodename;
+    }
 
-	/**
-	 * @param bytesOfFile the bytesOfFile to set
-	 */
-	public void setBytesOfFile(byte[] bytesOfFile) {
-		this.bytesOfFile = bytesOfFile;
-	}
+    public void setNodeName(String nodename) {
+        this.nodename = nodename;
+    }
 
-	/**
-	 * @return the hashOfFile
-	 */
-	public BigInteger getHashOfFile() {
-		return hashOfFile;
-	}
+    public String getFilepath() {
+        return filepath;
+    }
 
-	/**
-	 * @param hashOfFile the hashOfFile to set
-	 */
-	public void setHashOfFile(BigInteger hashOfFile) {
-		this.hashOfFile = hashOfFile;
-	}
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
+    }
 
-	/**
-	 * @return the nameOfFile
-	 */
-	public String getNameOfFile() {
-		return nameOfFile;
-	}
+    /**
+     * @return the bytesOfFile
+     */
+    public byte[] getBytesOfFile() {
+        return bytesOfFile;
+    }
 
-	/**
-	 * @param nameOfFile the nameOfFile to set
-	 */
-	public void setNameOfFile(String nameOfFile) {
-		this.nameOfFile = nameOfFile;
-	}
+    /**
+     * @param bytesOfFile the bytesOfFile to set
+     */
+    public void setBytesOfFile(byte[] bytesOfFile) {
+        this.bytesOfFile = bytesOfFile;
+    }
 
-	/**
-	 * @return the port
-	 */
-	public int getPort() {
-		return port;
-	}
+    /**
+     * @return the hashOfFile
+     */
+    public BigInteger getHashOfFile() {
+        return hashOfFile;
+    }
 
-	/**
-	 * @param port the port to set
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
+    /**
+     * @param hashOfFile the hashOfFile to set
+     */
+    public void setHashOfFile(BigInteger hashOfFile) {
+        this.hashOfFile = hashOfFile;
+    }
 
-	/**
-	 * @return the primaryServer
-	 */
-	public boolean isPrimaryServer() {
-		return primaryServer;
-	}
+    /**
+     * @return the nameOfFile
+     */
+    public String getNameOfFile() {
+        return nameOfFile;
+    }
 
-	/**
-	 * @param primaryServer the primaryServer to set
-	 */
-	public void setPrimaryServer(boolean primaryServer) {
-		this.primaryServer = primaryServer;
-	}
-	
+    /**
+     * @param nameOfFile the nameOfFile to set
+     */
+    public void setNameOfFile(String nameOfFile) {
+        this.nameOfFile = nameOfFile;
+    }
+
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * @param port the port to set
+     */
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    /**
+     * @return the primaryServer
+     */
+    public boolean isPrimaryServer() {
+        return primaryServer;
+    }
+
+    /**
+     * @param primaryServer the primaryServer to set
+     */
+    public void setPrimaryServer(boolean primaryServer) {
+        this.primaryServer = primaryServer;
+    }
 }

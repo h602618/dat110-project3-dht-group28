@@ -27,134 +27,100 @@ import no.hvl.dat110.middleware.Message;
 import no.hvl.dat110.util.FileManager;
 
 /**
- * 
  * @author tdoy
- *
  */
 public class FilesListing extends JFrame implements PropertyChangeListener {
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JList<String> list;
+    private DefaultListModel<String> dlmodel;
+    private FileManager filemanager;
+    private JTable table;
+    private int counter = 0;
 
-	private static final long serialVersionUID = 1L;
-	
-	private JPanel contentPane;
-	private JList<String> list;
-	private DefaultListModel<String> dlmodel;
-	
-	private FileManager filemanager;
-	 
-	private JTable table;
+    /**
+     * Create the frame.
+     */
+    public FilesListing(FileManager fm, JTable table) {
+        this.filemanager = fm;
+        this.table = table;
 
-	private int counter = 0;  
-	
-	/**
-	 * Create the frame.
-	 */
-	public FilesListing(FileManager fm, JTable table) {
-		
-		this.filemanager = fm;
-		this.table = table;
+        setBounds(100, 100, 300, 150);
+        contentPane = new JPanel();
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        contentPane.setLayout(new BorderLayout(0, 0));
+        setContentPane(contentPane);
 
-		setBounds(100, 100, 300, 150);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
-		
-		// add list components
-		dlmodel = new DefaultListModel<>();
-		list = new JList<>(dlmodel);
-		JScrollPane sp = new JScrollPane(list);
-        
+        // add list components
+        dlmodel = new DefaultListModel<>();
+        list = new JList<>(dlmodel);
+        JScrollPane sp = new JScrollPane(list);
+
         // add listener to list that can bring up popup menus.
         JPopupMenu popup = createPopupMenu();
         MouseListener popupListener = new PopupListener(popup);
         list.addMouseListener(popupListener);
-        
+
         contentPane.add(sp);
-        setLocationRelativeTo(null);    		// center on screen
+        setLocationRelativeTo(null);            // center on screen
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setResizable(false);					// disable resizing of form
-	}
-	
-	private JPopupMenu createPopupMenu() {
-		
-		JPopupMenu popup = new JPopupMenu();
-		JMenuItem jmSearch = new JMenuItem("Search");
-		jmSearch.addActionListener(new ActionListener() {
+        setResizable(false);                    // disable resizing of form
+    }
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				jmSearchActionPerformed();
-			}
-			
-		});
-		
-		popup.add(jmSearch);
-		
-		return popup;
-		
-	}
-	
-	public void addFileNameToList(String filename) {
-		dlmodel.addElement(filename);
-	}
-	
-	private void findFile(String filename) throws RemoteException {
- 
-		Set<Message> activepeers = filemanager.requestActiveNodesForFile(filename);
-		
-		counter = activepeers.size();		
-		
-		// clear all rows
-		DefaultTableModel tmodel = (DefaultTableModel) table.getModel();
-		tmodel.setRowCount(0);
-		
-		JOptionPane.showMessageDialog(null,
-                "Search completed with "+counter+" results. See results in the table", "Message",
-                JOptionPane.INFORMATION_MESSAGE);
-		
-		for(Message msg : activepeers) {
-			try {
-				double size = (double) msg.getBytesOfFile().length/1000;
-				NumberFormat nf = new DecimalFormat();
-				nf.setMaximumFractionDigits(3);
-				Object[] rdata = {msg.getNameOfFile(), msg.getHashOfFile(), nf.format(size), msg.getNodeName(), msg.getPort()};
-				updateTableRows(rdata);
-			} catch(Exception e) {
-				//
-			}
-		}
-		
-		this.dispose();
+    private JPopupMenu createPopupMenu() {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem jmSearch = new JMenuItem("Search");
+        jmSearch.addActionListener(e -> jmSearchActionPerformed());
 
-	}
-    
-	private void jmSearchActionPerformed() {
-		
-		try {
-			String selectedfile = list.getSelectedValue();
-			findFile(selectedfile);
+        popup.add(jmSearch);
+        return popup;
+    }
 
-		} catch(Exception e) {
-			JOptionPane.showMessageDialog(this,
-                    "Error! Please select a row and try again: " + e.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private void updateTableRows(Object[] rdata) {
-		
-		DefaultTableModel tmodel = (DefaultTableModel) table.getModel();
-		tmodel.addRow(rdata);
-		
-	}
-	
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		//		 
-	} 
-	
+    public void addFileNameToList(String filename) {
+        dlmodel.addElement(filename);
+    }
 
+    private void findFile(String filename) throws RemoteException {
+        Set<Message> activepeers = filemanager.requestActiveNodesForFile(filename);
+
+        counter = activepeers.size();
+
+        // clear all rows
+        DefaultTableModel tmodel = (DefaultTableModel) table.getModel();
+        tmodel.setRowCount(0);
+
+        JOptionPane.showMessageDialog(null, "Search completed with " + counter + " results. See results in the table", "Message", JOptionPane.INFORMATION_MESSAGE);
+
+        for (Message msg : activepeers) {
+            try {
+                double size = (double) msg.getBytesOfFile().length / 1000;
+                NumberFormat nf = new DecimalFormat();
+                nf.setMaximumFractionDigits(3);
+                Object[] rdata = {msg.getNameOfFile(), msg.getHashOfFile(), nf.format(size), msg.getNodeName(), msg.getPort()};
+                updateTableRows(rdata);
+            } catch (Exception ignored) {
+            }
+        }
+
+        this.dispose();
+    }
+
+    private void jmSearchActionPerformed() {
+        try {
+            String selectedfile = list.getSelectedValue();
+            findFile(selectedfile);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error! Please select a row and try again: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void updateTableRows(Object[] rdata) {
+        DefaultTableModel tmodel = (DefaultTableModel) table.getModel();
+        tmodel.addRow(rdata);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+    }
 }
