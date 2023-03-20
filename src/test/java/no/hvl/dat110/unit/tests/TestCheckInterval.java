@@ -6,19 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.hvl.dat110.util.Util;
 
 class TestCheckInterval {
-
-    @BeforeEach
-    void setUp() throws Exception {
-
-
-    }
-
     @Test
     void test() throws InterruptedException, RemoteException {
         // lower1 < id1 < upper1  (false bcos lower1 > id)

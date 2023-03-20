@@ -28,7 +28,7 @@ public class FileManager {
     private static final Logger logger = LogManager.getLogger(FileManager.class);
     private BigInteger[] replicafiles;                            // array stores replicated files for distribution to matching nodes
     private int numReplicas;                                    // let's assume each node manages nfiles (5 for now) - can be changed from the constructor
-    private NodeInterface chordnode;
+    private final NodeInterface chordnode;
     private String filepath;                                    // absolute filepath
     private String filename;                                    // only filename without path and extension
     private BigInteger hash;
@@ -61,8 +61,8 @@ public class FileManager {
 
         for (int i = 0; i < numReplicas; i++) {
             String replicaFilename = filename + i;
-            BigInteger replicaHash = Hash.hashOf(replicaFilename);
-            replicafiles[i] = replicaHash;
+            hash = Hash.hashOf(replicaFilename);
+            replicafiles[i] = hash;
         }
     }
 
@@ -74,6 +74,7 @@ public class FileManager {
         Random rnd = new Random();
         int index = rnd.nextInt(Util.numReplicas - 1);
         int counter = 0;
+
 
         // Task1: Given a filename, make replicas and distribute them to all active peers such that: pred < replica <= peer
         // Task2: assign a replica as the primary for this file. Hint, see the slide (project 3) on Canvas
@@ -92,8 +93,7 @@ public class FileManager {
             NodeInterface successor = chordnode.findSuccessor(replica);
             successor.addKey(replica);
 
-            boolean isPrimary = i == index;
-            successor.saveFileContent(filename, replica, bytesOfFile, isPrimary);
+            successor.saveFileContent(filename, replica, bytesOfFile, counter == index);
 
             counter++;
         }
@@ -122,9 +122,7 @@ public class FileManager {
             BigInteger replica = replicafiles[i];
 
             NodeInterface successor = chordnode.findSuccessor(replica);
-            Message metadata = successor.getFilesMetadata(replica);
-
-            activeNodesforFile.add(metadata);
+            activeNodesforFile.add(successor.getFilesMetadata(replica));
         }
 
         return activeNodesforFile;
@@ -155,9 +153,8 @@ public class FileManager {
      * Read the content of a file and return the bytes
      *
      * @throws IOException
-     * @throws NoSuchAlgorithmException
      */
-    public void readFile() throws IOException, NoSuchAlgorithmException {
+    public void readFile() throws IOException {
         File f = new File(filepath);
         byte[] bytesOfFile = new byte[(int) f.length()];
         FileInputStream fis = new FileInputStream(f);

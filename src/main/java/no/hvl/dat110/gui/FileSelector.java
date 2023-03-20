@@ -2,7 +2,6 @@ package no.hvl.dat110.gui;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
@@ -14,8 +13,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileSelector extends JFrame {
     private static final long serialVersionUID = 1L;
-    private JPanel contentPane;
-    private JTextField txt;
+    private final JTextField txt;
 
     /**
      * Create the frame.
@@ -25,7 +23,7 @@ public class FileSelector extends JFrame {
         setBounds(100, 100, 450, 300);
 
         // define layouts
-        contentPane = new JPanel();
+        JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(new BorderLayout(0, 0));
         setContentPane(contentPane);
@@ -46,8 +44,7 @@ public class FileSelector extends JFrame {
     }
 
     private void jfileChooserActionPerformed(ActionEvent e, JFileChooser jfc) {
-        // TODO skal denne være .equals() istedenfor == ?
-        if (e.getActionCommand() == JFileChooser.APPROVE_SELECTION) {
+        if (e.getActionCommand().equals(JFileChooser.APPROVE_SELECTION)) {
 
             File selectedfile = jfc.getSelectedFile();
             txt.setText(selectedfile.getAbsolutePath());

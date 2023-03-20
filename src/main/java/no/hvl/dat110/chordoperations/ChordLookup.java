@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import no.hvl.dat110.middleware.Message;
 import no.hvl.dat110.middleware.Node;
 import no.hvl.dat110.rpc.interfaces.NodeInterface;
-import no.hvl.dat110.util.Hash;
 import no.hvl.dat110.util.Util;
 
 /**
@@ -23,7 +22,7 @@ import no.hvl.dat110.util.Util;
  */
 public class ChordLookup {
     private static final Logger logger = LogManager.getLogger(ChordLookup.class);
-    private Node node;
+    private final Node node;
 
     public ChordLookup(Node node) {
         this.node = node;
@@ -37,7 +36,14 @@ public class ChordLookup {
         // if logic returns false; call findHighestPredecessor(key)
         // do highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
 
-        return null;
+        NodeInterface succ = node.getSuccessor();
+        NodeInterface stub = Util.getProcessStub(succ.getNodeName(), succ.getPort());
+
+        if (stub != null && Util.checkInterval(key, node.getNodeID().add(new BigInteger("1")), stub.getNodeID())) {
+            return stub;
+        }
+
+        return findHighestPredecessor(key).findSuccessor(key);
     }
 
     /**
@@ -54,15 +60,26 @@ public class ChordLookup {
         // check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
         // if logic returns true, then return the finger (means finger is the closest to key)
 
-        return (NodeInterface) node;
+        List<NodeInterface> fingerTable = node.getFingerTable();
+
+        for (int i = fingerTable.size() - 1; i >= 0; i--) {
+            NodeInterface finger = fingerTable.get(i);
+            NodeInterface stub = Util.getProcessStub(finger.getNodeName(), finger.getPort());
+
+            assert stub != null;
+            if (Util.checkInterval(finger.getNodeID(), node.getNodeID().add(new BigInteger("1")), ID.subtract(new BigInteger("1")))) {
+                return stub;
+            }
+        }
+
+        return node;
     }
 
     public void copyKeysFromSuccessor(NodeInterface succ) {
         Set<BigInteger> filekeys;
         try {
             // if this node and succ are the same, don't do anything
-            if (succ.getNodeName().equals(node.getNodeName()))
-                return;
+            if (succ.getNodeName().equals(node.getNodeName())) return;
 
             logger.info("copy file keys that are <= " + node.getNodeName() + " from successor " + succ.getNodeName() + " to " + node.getNodeName());
 

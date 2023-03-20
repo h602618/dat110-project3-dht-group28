@@ -45,22 +45,34 @@ public class Util {
 
         // Task: given an identifier, id: check whether pred < id <= node
 
-        return false;
+        boolean cond = false;
+        BigInteger mod = Hash.addressSize();
+
+        if (lower.compareTo(upper) > 0) {
+            if (id.compareTo(upper) <= 0) {
+                id = id.add(mod);
+            }
+            upper = upper.add(mod);
+        }
+
+        if (lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0) {
+            cond = true;
+        }
+
+        return cond;
     }
 
-    public static List<String> toString(List<NodeInterface> list) throws RemoteException {
+
+    public static List<String> toString(List<NodeInterface> list) {
         List<String> nodestr = new ArrayList<>();
-        list.forEach(node -> {
-            nodestr.add(((Node) node).getNodeName());
-        });
+        list.forEach(node -> nodestr.add(((Node) node).getNodeName()));
 
         return nodestr;
     }
 
     public static NodeInterface getProcessStub(String name, int port) {
-
-        NodeInterface nodestub = null;
-        Registry registry = null;
+        NodeInterface nodestub;
+        Registry registry;
         try {
             // Get the registry for this worker node
             registry = LocateRegistry.getRegistry(port);

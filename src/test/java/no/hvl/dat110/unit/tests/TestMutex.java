@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ class TestMutex {
         assertArrayEquals(e.toArray(), replies.toArray());
     }
 
-    class FileUpdater extends Thread {
+    static class FileUpdater extends Thread {
         boolean reply;
         NodeInterface node;
         Message peer;
@@ -115,9 +114,7 @@ class TestMutex {
 
     private Message getPeerMessage(Set<Message> activenodes, String peer) {
         Message pmsg = null;
-        Iterator<Message> it = activenodes.iterator();
-        while (it.hasNext()) {
-            Message n = it.next();
+        for (Message n : activenodes) {
             if (n.getNodeName().equals(peer))
                 return n;
         }

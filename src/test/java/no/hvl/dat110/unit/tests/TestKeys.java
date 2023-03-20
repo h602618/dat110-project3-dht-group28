@@ -110,9 +110,7 @@ class TestKeys {
 
     private List<BigInteger> toList(Set<BigInteger> list) {
         List<BigInteger> nlist = new ArrayList<>();
-        list.forEach(e -> {
-            nlist.add(e);
-        });
+        list.forEach(e -> nlist.add(e));
 
         return nlist;
     }

@@ -57,10 +57,10 @@ public class Hash {
     }
 
     public static String toHex(byte[] digest) {
-        StringBuilder strbuilder = new StringBuilder();
+        StringBuilder data = new StringBuilder();
         for (byte b : digest) {
-            strbuilder.append(String.format("%02x", b & 0xff));
+            data.append(String.format("%02x", b & 0xff));
         }
-        return strbuilder.toString();
+        return data.toString();
     }
 }

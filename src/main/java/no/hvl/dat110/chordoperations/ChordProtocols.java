@@ -6,9 +6,11 @@ package no.hvl.dat110.chordoperations;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 
+import no.hvl.dat110.util.Hash;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +30,7 @@ public class ChordProtocols {
      * FixFingerTable
      * CheckPredecessor
      */
-    private NodeInterface chordnode;
+    private final NodeInterface chordnode;
     private StabilizationProtocols stabprotocol;
 
     public ChordProtocols(NodeInterface chordnode) {
@@ -96,8 +98,7 @@ public class ChordProtocols {
         // set the successor to itself
         node.setSuccessor(node);
 
-        logger.info("New ring created. Node = " + node.getNodeName() + " | Successor = " + node.getSuccessor().getNodeName() +
-                " | Predecessor = " + node.getPredecessor());
+        logger.info("New ring created. Node = " + node.getNodeName() + " | Successor = " + node.getSuccessor().getNodeName() + " | Predecessor = " + node.getPredecessor());
     }
 
     public void leaveRing() throws RemoteException {
@@ -150,7 +151,35 @@ public class ChordProtocols {
             // compute: k = succ(n + 2^(i)) mod 2^mbit
             // then: use chordnode to find the successor of k. (i.e., succnode = chordnode.findSuccessor(k))
             // check that succnode is not null, then add it to the finger table
-        } catch (RemoteException ignored) {
+
+            int s = Hash.bitSize();
+            List<NodeInterface> fingerTable = ((Node) chordnode).getFingerTable();
+            BigInteger mod = Hash.addressSize();
+
+            NodeInterface succnode = null;
+            for (int i = 0; i < s; i++) {
+                BigInteger nextID = new BigInteger("2");
+                nextID = nextID.pow(i);
+
+                BigInteger currentID = chordnode.getNodeID().add(nextID);
+                currentID = currentID.mod(mod);
+
+                try {
+                    succnode = chordnode.findSuccessor(currentID);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
+                if (succnode != null) {
+                    try {
+                        fingerTable.set(i, succnode);
+                    } catch (IndexOutOfBoundsException e) {
+                        fingerTable.add(i, succnode);
+                    }
+                }
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 
